@@ -4,7 +4,9 @@ import auth.Auth;
 import auth.AuthServiceGrpc;
 import com.msa.authentication.dto.response.AuthResult;
 import com.msa.authentication.dto.response.TokenResponse;
+import com.msa.authentication.dto.response.UserResponse;
 import com.msa.authentication.inbound.port.AuthService;
+import com.msa.authentication.inbound.port.UserService;
 import com.msa.authentication.logic.JwtProvider;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -15,62 +17,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
     private final AuthService authService;
-    private final JwtProvider jwtProvider;
-
-    @Override
-    public void verifyToken(Auth.TokenRequest request, StreamObserver<Auth.VerifyResponse> responseObserver) {
-        String token = request.getToken();
-
-        try {
-            AuthResult result = authService.verifyToken(token);
-
-            Auth.VerifyResponse response = Auth.VerifyResponse.newBuilder()
-                    .setValid(result.isValid())
-                    .setUsername(result.getUsername() == null ? "" : result.getUsername())
-                    .setError("")
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
-        catch (Exception e) {
-            Auth.VerifyResponse response = Auth.VerifyResponse.newBuilder()
-                    .setValid(false)
-                    .setUsername("")
-                    .setError(e.getMessage())
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
-    }
-
-    @Override
-    public void refreshToken(Auth.RefreshRequest request, StreamObserver<Auth.RefreshResponse> responseObserver) {
-        try {
-            TokenResponse tokenResponse = authService.refreshToken(request.getRefreshToken());
-            Auth.RefreshResponse response = Auth.RefreshResponse.newBuilder()
-                    .setAccessToken(tokenResponse.getAccessToken())
-                    .setRefreshToken(tokenResponse.getRefreshToken())
-                    .setSuccess(true)
-                    .setError("")
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
-        catch (Exception e) {
-            Auth.RefreshResponse response = Auth.RefreshResponse.newBuilder()
-                    .setAccessToken("")
-                    .setRefreshToken("")
-                    .setSuccess(false)
-                    .setError(e.getMessage())
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
-    }
+    private final UserService userService;
 
     @Override
     public void autoVerifyAndRefresh(Auth.AutoRefreshRequest request, StreamObserver<Auth.AutoRefreshResponse> responseObserver) {
@@ -124,5 +71,22 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
+    }
+
+    @Override
+    public void getUserByUsername(Auth.GetUserRequest request, StreamObserver<Auth.GetUserResponse> responseObserver) {
+        String username = request.getUsername();
+
+        UserResponse userResponse = userService.findByUsername(username);
+
+        Auth.GetUserResponse response = Auth.GetUserResponse.newBuilder()
+                .setUsername(userResponse.getUsername())
+                .setName(userResponse.getName())
+                .setEmail(userResponse.getEmail())
+                .setPhone(userResponse.getPhone())
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 }

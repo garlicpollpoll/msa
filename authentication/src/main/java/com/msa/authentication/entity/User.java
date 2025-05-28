@@ -1,5 +1,6 @@
 package com.msa.authentication.entity;
 
+import com.msa.authentication.dto.request.JoinRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
