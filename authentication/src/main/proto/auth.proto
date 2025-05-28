@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc VerifyToken (TokenRequest) returns (VerifyResponse);
+  rpc RefreshToken (RefreshRequest) returns (RefreshResponse);
+  rpc AutoVerifyAndRefresh (AutoRefreshRequest) returns (AutoRefreshResponse);
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message VerifyResponse {
+  bool valid = 1;
+  string username = 2;
+  string error = 3;
+}
+
+message RefreshRequest {
+  string refreshToken = 1;
+}
+
+message RefreshResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+message AutoRefreshRequest {
+  string accessToken = 1;
+  string refreshToken = 2;
+}
+
+message AutoRefreshResponse {
+  bool valid = 1;
+  string username = 2;
+  string accessToken = 3;
+  string refreshToken = 4;
+  bool refreshed = 5;
+  string error = 6;
+}
