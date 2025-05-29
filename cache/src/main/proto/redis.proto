@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package redis;
+
+service RedisService {
+  rpc Save (CommonRequest) returns (CommonResponse);
+  rpc Get (CommonRequest) returns (CommonResponse);
+  rpc HasKey (CommonRequest) returns (HasKeyResponse);
+}
+
+message CommonRequest {
+  string key = 1;
+  string value = 2;
+  string type = 3;
+}
+
+message CommonResponse {
+  string response = 1;
+}
+
+message HasKeyResponse {
+  bool response = 1;
+}
+
